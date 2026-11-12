@@ -67,3 +67,11 @@ def antiafk_w():
         pydirectinput.keyDown('w')
         pydirectinput.keyUp('w')
 
+
+@activate_window_first
+def autorun():
+    while True:
+        pydirectinput.keyDown('w')
+        if is_paused:
+            pydirectinput.keyUp('w')
+        delay_with_pause(1)
