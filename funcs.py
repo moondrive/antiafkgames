@@ -2,71 +2,56 @@ import pydirectinput
 import pygetwindow as gw
 import time
 import keyboard
+import functools
+import os
 
-def jump_plus_lcm(target_title):
-    windows = gw.getWindowsWithTitle(target_title)
-    if not windows:
-        print(f"Окно '{target_title}' не найдено.")
-        return
-    
-    win = windows[0]
-    print(f"Окно '{target_title}' найдено. Активируем...")
-    
+TOGGLE_BUTTON = 'f8'
+EXIT_BUTTON = 'f9'
+is_paused = False
 
-    try:
-        win.activate()
-    except Exception:
-        print("Внимание: Нажмите на окно Roblox мышкой, чтобы сделать его активным!")
+def toggle_macro():
+    global is_paused
+    is_paused = not is_paused
+    if is_paused:
+        print(f"\n[ПАУЗА] Ждем снятия... (Кнопка выхода: {EXIT_BUTTON})")
+    else:
+        print("\n[АКТИВНО] Продолжаем работу!")
 
-    print("Анти-АФК начнется через 3 секунды.")
-    print("Для экстренной остановки нажмите и удерживайте клавишу F8.")
-    time.sleep(3)
-    pydirectinput.keyDown('space')
-    while True:
-        # Надежная проверка аппаратного прерывания
-        if keyboard.is_pressed('f8'):
-            pydirectinput.keyUp('space')
-            break
+def exit_macro():
+    print(f"\n[ВЫХОД] Нажата {EXIT_BUTTON}. Скрипт полностью остановлен.")
+    os._exit(0)
 
-        pydirectinput.click()
-        
-        
-        for _ in range(10):
-            if keyboard.is_pressed('f8'):
-                print("Нажат F8. Выход из программы.")
-                pydirectinput.keyUp('space')
-                return
-            time.sleep(0.1)
+keyboard.add_hotkey(TOGGLE_BUTTON, toggle_macro)
+keyboard.add_hotkey(EXIT_BUTTON, exit_macro)
 
+def delay_with_pause(seconds):
+    time.sleep(seconds)
+    while is_paused:
+        time.sleep(0.1)
 
-def anti_afk(target_title):
+def activate_window_first(func):
+    @functools.wraps(func)
+    def wrapper(target_title):
         windows = gw.getWindowsWithTitle(target_title)
         if not windows:
             print(f"Окно '{target_title}' не найдено.")
             return
-        
-        win = windows[0]
+
         print(f"Окно '{target_title}' найдено. Активируем...")
-        
-
         try:
-            win.activate()
+            windows[0].activate()
         except Exception:
-            print("Внимание: Нажмите на окно Roblox мышкой, чтобы сделать его активным!")
-
-        print("Анти-АФК начнется через 3 секунды.")
-        print("Для экстренной остановки нажмите и удерживайте клавишу F8.")
+            pass
+    
         time.sleep(3)
-        while True:
-            if keyboard.is_pressed('f8'):
-                pydirectinput.keyUp('space')
-                break
+        return func()
+    return wrapper
 
-            
-
-            for _ in range(10):
-                if keyboard.is_pressed('f8'):
-                    print("Нажат F8. Выход из программы.")
-                    pydirectinput.keyUp('space')
-                    return
-                time.sleep(0.1)
+@activate_window_first
+def jump_plus_lcm():
+    while True:
+        delay_with_pause(0.1)
+        
+        pydirectinput.keyDown('space')
+        pydirectinput.click()
+        pydirectinput.keyUp('space')

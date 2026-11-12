@@ -1,0 +1,2 @@
+# AutoHotkey Python bindings
+ahk>=0.13.0
