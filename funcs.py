@@ -55,3 +55,15 @@ def jump_plus_lcm():
         pydirectinput.keyDown('space')
         pydirectinput.click()
         pydirectinput.keyUp('space')
+
+
+@activate_window_first
+def antiafk_w():
+    minutes = 18
+    while True:
+        for i in range(minutes):
+            delay_with_pause(60)
+            print(f'minute of afk:{i}')
+        pydirectinput.keyDown('w')
+        pydirectinput.keyUp('w')
+
