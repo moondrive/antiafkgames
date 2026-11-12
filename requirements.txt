@@ -1,2 +1,4 @@
-# AutoHotkey Python bindings
+pydirectinput
+pygetwindow
+keyboard
 ahk>=0.13.0
